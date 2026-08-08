@@ -5,3 +5,5 @@ target/
 .vscode/
 *.log
 src/main/resources/keystore/*.p12
+setup-clearpa-engine.sh
+sftp_data/

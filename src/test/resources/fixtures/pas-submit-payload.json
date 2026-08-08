@@ -1,0 +1,79 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Claim",
+        "id": "pas-claim-2026-001",
+        "status": "active",
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+              "code": "professional"
+            }
+          ]
+        },
+        "use": "preauthorization",
+        "patient": {
+          "reference": "Patient/pat-1001"
+        },
+        "created": "2026-08-08T00:00:00Z",
+        "insurer": {
+          "reference": "Organization/payer-epa-01"
+        },
+        "provider": {
+          "reference": "Organization/prov-clinic-01"
+        },
+        "priority": {
+          "coding": [
+            {
+              "code": "normal"
+            }
+          ]
+        },
+        "insurance": [
+          {
+            "sequence": 1,
+            "focal": true,
+            "coverage": {
+              "reference": "Coverage/cov-889900"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "pat-1001",
+        "name": [
+          {
+            "family": "Smith",
+            "given": [
+              "Jane"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1985-06-15"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "cov-889900",
+        "status": "active",
+        "subscriber": {
+          "reference": "Patient/pat-1001"
+        },
+        "payor": [
+          {
+            "reference": "Organization/payer-epa-01"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  kong:
+    image: kong:3.6-ubuntu
+    container_name: epa-kong-gateway
+    restart: always
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl
+      KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+      - "8001:8001"
+    volumes:
+      - ./kong.yml:/usr/local/kong/declarative/kong.yml:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  sftp:
+    image: atmoz/sftp:latest
+    container_name: epa-sftp-server
+    ports:
+      - "2222:22"
+    # Command creates user 'epauser' with password 'epapass', UID 1001, and subdirectories
+    command: epauser:epapass:1001::outbound,inbound
+    volumes:
+      - ./sftp_data/outbound:/home/epauser/outbound
+      - ./sftp_data/inbound:/home/epauser/inbound
