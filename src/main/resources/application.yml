@@ -1,0 +1,118 @@
+server:
+  port: 8080
+
+hapi:
+  fhir:
+    server:
+      path: /fhir/v1/*
+      server-name: "Enterprise CMS-0057-F ePA Gateway"
+      server-version: "2026.1.0"
+
+epa:
+  engine:
+    version: "2026.1.0-RELEASE"
+  legacy:
+    http:
+      endpoint-url: "http://localhost:8089/api/v1/x12/ingest"
+    sftp:
+        host: localhost
+        port: 2222
+        username: epauser
+        password: epapass      
+  sftp:
+      host: localhost
+      port: 2222
+      username: epauser
+      password: epapass
+      remote-outbound-dir: /outbound
+      remote-inbound-dir: /inbound
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+# ===================================================================
+# H2 IN-MEMORY DATABASE & H2 CONSOLE CONFIGURATION
+# ===================================================================
+spring:
+  datasource:
+    url: jdbc:h2:mem:epadb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+# ===================================================================
+# DEFAULT GATEWAY-AGNOSTIC HEADER MAPPINGS (ROOT LEVEL)
+# ===================================================================
+gateway:
+  header-mapping:
+    correlation-id: "X-Correlation-ID"
+    consumer-id: "X-Consumer-Username"
+    consumer-role: "X-Consumer-Groups"
+    client-ip: "X-Forwarded-For"
+
+# ===================================================================
+# PROFILE-SPECIFIC OVERRIDES (APPENDED AT BOTTOM)
+# ===================================================================
+---
+spring:
+  config:
+    activate:
+      on-profile: kong
+gateway:
+  header-mapping:
+    correlation-id: "X-Correlation-ID"
+    consumer-id: "X-Consumer-Username"
+    consumer-role: "X-Consumer-Groups"
+    client-ip: "X-Forwarded-For"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: apigee
+gateway:
+  header-mapping:
+    correlation-id: "X-B3-TraceId"
+    consumer-id: "X-Apigee-Developer-Email"
+    consumer-role: "X-Apigee-App-Name"
+    client-ip: "X-Forwarded-For"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: aws-apigw
+gateway:
+  header-mapping:
+    correlation-id: "X-Amzn-Trace-Id"
+    consumer-id: "X-Amzn-Cognito-Identity-Id"
+    consumer-role: "X-Amzn-Caller-Arn"
+    client-ip: "X-Forwarded-For"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: azure-apim
+gateway:
+  header-mapping:
+    correlation-id: "Request-Id"
+    consumer-id: "X-Azure-User-Id"
+    consumer-role: "X-Azure-Subscription-Name"
+    client-ip: "X-Forwarded-For"
